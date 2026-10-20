@@ -1,174 +1,184 @@
-# AI Minecraft Server
+# Minecraft LLM Showrunner
 
-The experimental LLM runtime now includes a generated-goal pipeline: a slower LLM prepares bounded goal contracts while a faster LLM controls one Mineflayer character inside the active contract. Deterministic code validates every contract, action result, promotion, and success claim. Use `pipeline start` in Minecraft chat without a slash. See `docs/llm-agent-operations.md` for exact commands, limits, recovery, and the live evidence gate. The earlier catalog-based director remains available as a smaller proven baseline.
+An experimental system that lets large language models control Minecraft characters, pursue verified goals, and perform directed scenes alongside a human player.
 
-## Mission
+The central idea is simple: **the LLM decides what to try, but ordinary code decides what it is allowed to do and whether it actually succeeded.** This keeps the characters flexible without trusting generated text with unrestricted control of Minecraft or the server.
 
-This project explores how an AI can interact directly with a persistent Minecraft server so a person can play alongside, collaborate with, and challenge the AI inside the game.
+> **Project status:** Research prototype for local Minecraft Java Edition `1.21.4`. One live slow-planner-to-fast-agent handoff has been demonstrated and recorded. The larger multi-goal pipeline and two-actor showrunner are implemented and extensively tested, but still require incremental live-world validation before they should be treated as production-ready.
 
-The server is more than a static world or chatbot demo. It is a live environment where the AI can observe game state, move through the world, communicate, fight, build, operate server tools, and help create shared experiences. The current system is an experimental first version; part of the project is determining the best architecture for deeper, safer, and more natural AI interaction.
+## Why this project exists
 
-## How AI Interacts Today
+Most Minecraft bots follow a fixed script. This project asks a broader question:
 
-The current system has three complementary interaction paths:
+**Can an AI character observe a changing Minecraft world, make its own small decisions, remember verified progress, accept new direction, and participate in a story with a human?**
 
-- **Mineflayer bot:** gives the AI an embodied Minecraft player that can perceive nearby blocks and entities, navigate, chat, manage equipment, and perform combat actions.
-- **Server console:** lets the AI inspect and administer the local server, teleport players, issue world commands, monitor logs, and save the world.
-- **Generated datapacks:** let the AI perform large, deterministic builds in staged batches when ordinary block-by-block bot construction would be too slow or unreliable.
+The long-term goal is a system for creating video content in which:
 
-These paths work, but they are fragmented. Mineflayer provides embodiment while console commands and datapacks provide broader world control.
+- human creators provide the premise, boundaries, dialogue style, and high-level direction;
+- slower, more thoughtful LLM calls prepare the characters' next goals;
+- faster LLM calls react to the world and choose moment-to-moment actions;
+- Minecraft characters move, gather, craft, build, fight, and speak in-game; and
+- deterministic software verifies progress, enforces limits, and stops safely when evidence is missing.
 
-## Current Capabilities
+This repository contains the experiments, runtime code, tests, scene tooling, and operating guides developed toward that goal.
 
-- Start, monitor, diagnose, and save the local server.
-- Join through a Mineflayer-controlled bot.
-- Follow players, look at them, chat, and report position.
-- Navigate using pathfinding.
-- Equip and operate shields.
-- Run rod, mace, TNT-minecart, and scripted combat experiments.
-- Build and import large structures with generated datapacks.
-- Inspect locations and teleport players to verified safe positions.
-- Run cinematic battle experiments through the movie-war scripts.
+## How it works
 
-## World Projects
+```mermaid
+flowchart LR
+    H[Human player or director] -->|mission, start, stop, answers| S[Supervisor]
+    S -->|compact state and verified history| P[Slow LLM planner]
+    P -->|bounded goal contract| V[Code validator]
+    V -->|approved goal and allowed actions| F[Fast LLM controller]
+    M[Minecraft world] -->|observations| F
+    F -->|one structured action| A[Mineflayer actor]
+    A -->|move, mine, craft, place, chat| M
+    M -->|action result and world evidence| E[Deterministic verifier]
+    E -->|verified outcome| S
+```
 
-Known completed or actively maintained locations include:
+The system deliberately separates reasoning from authority:
 
-- **City/district:** Overworld arrival at `532 92 44`.
-- **Compact FlameFrags-inspired base:** Overworld center near `5044 65 2348`; safe entrance at `5044.5 66 2323.5`.
-- **Nether hub:** Nether arrival near `300.5 80 300.5`.
-- **Cursed crater shrine:** Overworld structure centered near `900 86 -360`; documented entrance at `900 84 -392`.
+1. **A human supplies direction.** This can be a mission, a start or stop command, or an answer to a bounded multiple-choice question.
+2. **The slow planner creates a goal contract.** It works one goal ahead and describes the objective, completion conditions, and permitted action types.
+3. **Code validates the contract.** Unsupported goals, malformed output, excessive budgets, and unsafe transitions fail closed.
+4. **The fast controller chooses one action at a time.** It receives compact observations instead of unrestricted access to the whole server.
+5. **Mineflayer performs the action.** Mineflayer is a JavaScript library that connects a program to Minecraft as a player character.
+6. **Code verifies the result.** The system records bounded state and only marks progress complete when Minecraft evidence satisfies the goal predicate.
 
-Design specifications and implementation plans for major builds are stored under `docs/superpowers/`.
+The planner and controller currently use the local OpenAI Codex CLI as their LLM provider. A scripted provider is also available for deterministic tests.
 
-## Future Direction
+## What is in the repository
 
-The next architectural question is whether to replace the separate bot, console, and datapack control paths with a unified, safety-controlled AI bridge.
+### LLM survival agent
 
-That bridge could expose a consistent set of tools for:
+A persistent single-character runtime that can observe nearby world state and perform bounded actions. Its state survives process restarts, while histories and budgets remain deliberately limited.
 
-- Perception and world queries.
-- Navigation and embodied actions.
-- Inventory and crafting.
-- Combat and cooperation.
-- Block placement and construction.
-- Approved server administration.
-- Persistent goals, memories, and world events.
+### Slow-planner / fast-controller pipeline
 
-This unified bridge is a direction to evaluate, not an implemented feature. Different approaches—including a richer Mineflayer service, a server plugin or mod, and a hybrid control API—should be compared before choosing the long-term architecture.
+The slow model prepares successive goal contracts while the fast model works on the active goal. The supervisor allows one active goal and at most one prepared successor, so planning can continue without creating an unbounded queue.
 
-## Quick Start
+### Two-actor showrunner
 
-The project currently targets Minecraft Java Edition `1.21.4`, a stable version supported by the installed Mineflayer setup. Use a matching `1.21.4` Minecraft Launcher profile.
+A separate system for coordinating Minecraft characters in directed scenes. It includes approved dialogue, movement cues, rehearsal and take lifecycles, evidence capture, emergency stops, and fail-closed production controls.
 
-Requirements:
+### Deterministic scene and world tools
 
-- Minecraft Java Edition.
-- A command-line Java runtime, such as Temurin or OpenJDK 21.
-- Node.js and npm.
+Scripts and datapacks support repeatable sets, large builds, teleports, combat experiments, and cinematic rehearsals when direct block-by-block bot control would be too slow or unreliable.
 
-Install Node dependencies:
+## What has been demonstrated
+
+- A Mineflayer character can join the local server, observe world state, navigate, chat, manipulate inventory, and perform constrained actions.
+- A slow LLM director has selected a bounded goal for a fast LLM agent in a real Minecraft session.
+- The fast agent completed the action and the runtime recorded fresh, actor-matched, non-simulated Minecraft evidence.
+- A survival progression scene has gathered wood, crafted tools, mined stone, crafted a furnace, traveled toward a village, and delivered a final chat line.
+- Two scripted actors can follow paced dialogue and movement cues in a prepared meadow scene.
+- State, budgets, recent outcomes, failure fences, and audit events persist across restarts while remaining bounded.
+- The automated suite covers contracts, persistence, safety gates, cancellation, verification, and showrunner behavior.
+
+Automated tests prove software behavior; they do **not** prove that a particular live world still has safe terrain, reachable resources, a working route, or correct recording conditions. Live claims require a fresh rehearsal and real-world evidence.
+
+## Quick start
+
+This is currently a macOS-oriented local development project targeting Minecraft Java Edition `1.21.4`.
+
+### Requirements
+
+- Minecraft Java Edition with a `1.21.4` profile
+- Java 21, such as Temurin or OpenJDK
+- Node.js 22 and npm
+- OpenAI Codex CLI for live LLM decisions
+
+### Install
 
 ```sh
+git clone https://github.com/prithvisinhraol-lab/minecraft-llm-showrunner.git
+cd minecraft-llm-showrunner
 npm install
-```
-
-Optionally create a local bot configuration:
-
-```sh
 cp .env.example .env
-```
-
-Download the vanilla server jar when it is not already present:
-
-```sh
 npm run download-server
 ```
 
-After reading the Minecraft EULA, accept it in `server/eula.txt`, then start the server:
+Read the [Minecraft EULA](https://aka.ms/MinecraftEULA), then set `eula=true` in `server/eula.txt` before starting the server.
+
+### Run the basic local server and bot
+
+Terminal 1:
 
 ```sh
 npm run server
 ```
 
-In Minecraft Java Edition:
+In Minecraft, connect to:
 
-1. Open Multiplayer.
-2. Add or directly connect to `127.0.0.1:25565`.
-3. Join the world using Minecraft Java `1.21.4`.
+```text
+127.0.0.1:25565
+```
 
-Start the AI-controlled bot in another terminal:
+Terminal 2:
 
 ```sh
 npm run bot
 ```
 
-Run the automated tests with:
+Useful in-game chat commands include `bot come`, `bot stop`, `bot pos`, `bot look`, and `bot say <message>`.
+
+### Run the LLM agent
+
+```sh
+npm run llm-agent
+```
+
+The generated-goal pipeline is operated through exact in-game chat commands such as `pipeline start`, `pipeline status`, `pipeline stop`, and `pipeline mission <text>`. Read the [LLM agent operations guide](docs/llm-agent-operations.md) before a live run; it contains the required preflight checks, budgets, recovery steps, and evidence rules.
+
+### Run tests
 
 ```sh
 npm test
 ```
 
-## Bounded survival demo
+## Other runnable experiments
 
-The older single-actor survival demonstration remains separate from the generated-goal pipeline. It waits without connecting `LlmAgent` until the authorized player sends the exact start mark. It then gathers wood, makes and places a crafting table, makes and equips a wooden pickaxe, mines eight cobblestone, crafts a furnace, verifies a real village, and says `This is gonna be great!!!` only after every proof gate passes.
+| Command | Purpose |
+| --- | --- |
+| `npm run survival-demo` | Runs the bounded single-actor survival progression scene. |
+| `npm run meadow-live` | Arms the two-actor meadow showrunner and waits for the authorized start mark. |
+| `npm run showrunner:rehearse` | Exercises the showrunner rehearsal contract. |
+| `npm run movie-war` | Runs a cinematic multi-character experiment. |
+| `npm run movie-war-fight` | Runs its combat-focused mode. |
+| `npm run generate-flamefrags-base` | Generates the compact FlameFrags-inspired base datapack. |
 
-Start these in separate Terminal windows:
+These experiments do not all share the same safety or maturity level. Follow the relevant runbook instead of combining control paths during a production take.
 
-```sh
-npm run server
-SURVIVAL_DEMO_LOG_PATH=/absolute/path/to/server/logs/latest.log npm run survival-demo
-```
+## Safety and privacy
 
-Then use Minecraft chat as `VPNAJ`:
+The included server configuration is for local experimentation. It uses `online-mode=false` so local Mineflayer characters can connect without separate paid Microsoft accounts.
 
-```text
-start
-```
+**Do not expose the included server configuration directly to the internet.** Before allowing LAN or public access, enable appropriate authentication and review the whitelist, operator permissions, firewall, command access, secrets, and offline-mode risks.
 
-Emergency stop, also in Minecraft chat with no slash:
+Runtime state, worlds, recordings, server jars, credentials, and local approval material are intentionally excluded from the public repository.
 
-```text
-stop
-```
+## Documentation
 
-`start` and `stop` are lowercase, exact, and have no leading `/`. The demo is one-shot and preserves its state; remove or archive `runtime/survival-demo-state` deliberately before a new rehearsal. Unit tests do not prove the clearing resources or a village are reachable in the live world.
+- [LLM agent operations](docs/llm-agent-operations.md) — pipeline commands, live validation, recovery, and evidence
+- [Showrunner operations](docs/showrunner-operations.md) — safe rehearsal and production workflow
+- [Showrunner design](docs/superpowers/specs/2026-08-05-llm-video-showrunner-design.md) — approved architecture and production boundaries
+- [Showrunner implementation plan](docs/superpowers/plans/2026-08-05-two-actor-showrunner-mvp.md) — staged implementation details
+- [Project resume notes](SHOWRUNNER_RESUME.md) — current operational context and restart guidance
 
-## In-Game Bot Commands
+## Current boundaries and next steps
 
-Type these commands in Minecraft chat:
+This is an evolving research project, not a plug-and-play autonomous player. Important next steps are:
 
-- `bot come` makes the bot pathfind near you.
-- `bot stop` stops the bot.
-- `bot say <message>` makes the bot chat.
-- `bot pos` prints the bot position.
-- `bot look` makes the bot look at you.
-- `bot shield up` equips and raises the bot's shield.
-- `bot shield down` lowers the shield.
-- `bot practice` stops the bot, faces you, and raises its shield.
+- repeat live validation in small, observable increments;
+- broaden the action vocabulary only after existing actions are reliable;
+- validate multi-goal planning and goal replacement during real survival play;
+- add native production-host adapters for the two-actor showrunner;
+- improve recording and camera workflows; and
+- preserve the separation between LLM suggestions, deterministic authority, and verified evidence.
 
-Additional combat and cinematic experiments are available through the npm scripts in `package.json`.
+Contributions and experiments are welcome, especially when they include a reproducible test, a bounded failure mode, and evidence from a real Minecraft run.
 
-## Security Notes
+## License
 
-The default server is intended for local experimentation. It binds to the local machine and uses `online-mode=false`, allowing the Mineflayer bot to connect with an offline username instead of requiring a second paid Microsoft account.
-
-Do not expose this configuration directly to the internet. Before allowing LAN or internet connections, review authentication, whitelist, permissions, command access, firewall rules, and the risks of offline mode.
-
-## Showrunner production safety
-
-The two-actor showrunner is a separate, safety-controlled production path. Its
-approved design is the [Showrunner MVP specification](docs/superpowers/specs/2026-08-05-llm-video-showrunner-design.md), and its implementation scope is recorded in the [implementation plan](docs/superpowers/plans/2026-08-05-two-actor-showrunner-mvp.md). Operators must follow the [showrunner operations runbook](docs/showrunner-operations.md) before attempting a take.
-
-The legacy `bot ...` chat commands and the combat/cinematic scripts are
-experimental tools. They must **not** be used as the control path for an
-LLM-directed production take. In particular, Minecraft player chat is not a
-director-control channel, production actors must be non-operators, and only a
-creator-approved dialogue bank may supply dialogue for a take.
-
-The repository currently provides the tested showrunner core and CLI contract,
-but it does not include the native production-host adapters required to operate
-the live workflow. The CLI therefore fails closed for live commands until an
-authorized host composes the actor, controller, rooted-artifact, and
-rooted-recording capabilities described in the runbook. Do not call an MVP
-take accepted until the required live evidence exists.
+No open-source license has been selected yet. The code is publicly visible, but normal copyright restrictions apply until a license is added.
