@@ -1,0 +1,28 @@
+playsound minecraft:entity.warden.sonic_charge master @a 532 110 44 2 0.5
+particle minecraft:flash 532 120 44 24 12 24 0.1 30 force
+summon minecraft:lightning_bolt 532 94 44
+summon minecraft:tnt 528 126 41 {Fuse:45}
+summon minecraft:tnt 541 128 51 {Fuse:48}
+summon minecraft:tnt 520 130 37 {Fuse:52}
+summon minecraft:tnt 532 126 44 {Fuse:40}
+summon minecraft:tnt 535 128 47 {Fuse:46}
+summon minecraft:tnt 529 130 41 {Fuse:55}
+playsound minecraft:entity.ender_dragon.growl master @a 532 105 44 2 0.55
+particle minecraft:large_smoke 532 112 44 28 8 28 0.08 180 force
+summon minecraft:tnt 512 130 28 {Fuse:50}
+summon minecraft:tnt 552 132 61 {Fuse:54}
+summon minecraft:tnt 545 128 30 {Fuse:46}
+summon minecraft:tnt 518 126 58 {Fuse:48}
+summon minecraft:tnt 514 125 45 {Fuse:42}
+summon minecraft:tnt 550 127 45 {Fuse:45}
+summon minecraft:tnt 532 130 28 {Fuse:50}
+summon minecraft:tnt 532 132 62 {Fuse:55}
+summon minecraft:tnt 523 128 36 {Fuse:44}
+summon minecraft:tnt 542 129 53 {Fuse:46}
+playsound minecraft:entity.generic.explode master @a 532 100 44 2 0.45
+particle minecraft:explosion_emitter 532 98 44 30 6 30 0.05 20 force
+summon minecraft:tnt 532 122 44 {Fuse:35}
+summon minecraft:tnt 528 124 48 {Fuse:40}
+summon minecraft:tnt 536 124 40 {Fuse:42}
+summon minecraft:tnt 522 126 44 {Fuse:46}
+summon minecraft:tnt 542 126 44 {Fuse:50}

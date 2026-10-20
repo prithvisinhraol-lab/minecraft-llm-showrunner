@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "set_id": "city_square_dialogue",
+  "set_version": 1,
+  "dimension": "minecraft:overworld",
+  "protected_cuboid": {
+    "min": {"x": 528, "y": 90, "z": 40},
+    "max": {"x": 544, "y": 98, "z": 48}
+  },
+  "block_assertions": [
+    {
+      "position": {"x": 532, "y": 91, "z": 44},
+      "block": "minecraft:stone_bricks",
+      "verification": "authored_unverified"
+    }
+  ],
+  "actor_baselines": {
+    "hero": {"mark": "hero_start", "inventory": [], "health": 20, "food": 20, "effects": []},
+    "rival": {"mark": "rival_start", "inventory": [], "health": 20, "food": 20, "effects": []}
+  },
+  "environment": {
+    "time": 6000,
+    "weather": "clear",
+    "gamerules": {"doDaylightCycle": false, "doWeatherCycle": false}
+  },
+  "entity_cleanup_tag": "showrunner_production",
+  "reset_timeout_ms": 10000
+}

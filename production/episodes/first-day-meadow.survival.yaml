@@ -1,0 +1,203 @@
+schema_version: 2
+episode: first_day_meadow
+title: First Day in the Meadow
+actors: [hero, rival]
+regions:
+  hero_tree:
+    purpose: tree
+    min: {x: 40, y: 64, z: 40}
+    max: {x: 46, y: 78, z: 46}
+    allowed_blocks: [oak_log]
+  rival_tree:
+    purpose: tree
+    min: {x: 54, y: 64, z: 40}
+    max: {x: 60, y: 78, z: 46}
+    allowed_blocks: [oak_log]
+  hero_mine_lane:
+    purpose: excavation
+    min: {x: 66, y: 64, z: 54}
+    max: {x: 66, y: 65, z: 58}
+    allowed_blocks: [stone]
+    allowed_cells:
+      - {x: 66, y: 64, z: 54}
+      - {x: 66, y: 64, z: 55}
+      - {x: 66, y: 64, z: 56}
+      - {x: 66, y: 64, z: 57}
+      - {x: 66, y: 64, z: 58}
+      - {x: 66, y: 65, z: 58}
+  rival_mine_lane:
+    purpose: excavation
+    min: {x: 67, y: 64, z: 54}
+    max: {x: 67, y: 64, z: 58}
+    allowed_blocks: [stone]
+    allowed_cells:
+      - {x: 67, y: 64, z: 54}
+      - {x: 67, y: 64, z: 55}
+      - {x: 67, y: 64, z: 56}
+      - {x: 67, y: 64, z: 57}
+      - {x: 67, y: 64, z: 58}
+marks:
+  crafting_table:
+    position: {x: 52, y: 65, z: 50}
+    safe_headroom: true
+beats:
+  - id: arrival
+    goal_ids: []
+  - id: first_priorities
+    goal_ids: []
+  - id: two_trees
+    goal_ids: [gather_hero_logs, gather_rival_logs]
+  - id: crafting
+    goal_ids:
+      - regroup_hero_at_crafting_table
+      - regroup_rival_at_crafting_table
+      - place_crafting_table
+      - craft_hero_wooden_pickaxe
+      - craft_rival_wooden_pickaxe
+      - equip_hero_wooden_pickaxe
+      - equip_rival_wooden_pickaxe
+  - id: breaking_ground
+    goal_ids: [excavate_hero_lane, excavate_rival_lane]
+  - id: hook
+    goal_ids: []
+goals:
+  - id: gather_hero_logs
+    actor: hero
+    kind: gather
+    region: hero_tree
+    item: oak_log
+    count: 3
+    timeout_ms: 30000
+    max_replans: 2
+    completion:
+      kind: actor_inventory_at_least
+      actor: hero
+      item: oak_log
+      count: 3
+  - id: gather_rival_logs
+    actor: rival
+    kind: gather
+    region: rival_tree
+    item: oak_log
+    count: 3
+    timeout_ms: 30000
+    max_replans: 2
+    completion:
+      kind: actor_inventory_at_least
+      actor: rival
+      item: oak_log
+      count: 3
+  - id: regroup_hero_at_crafting_table
+    actor: hero
+    kind: regroup
+    mark: crafting_table
+    count: 1
+    timeout_ms: 30000
+    max_replans: 2
+    completion:
+      kind: at_mark
+      actor: hero
+      mark: crafting_table
+  - id: regroup_rival_at_crafting_table
+    actor: rival
+    kind: regroup
+    mark: crafting_table
+    count: 1
+    timeout_ms: 30000
+    max_replans: 2
+    completion:
+      kind: at_mark
+      actor: rival
+      mark: crafting_table
+  - id: place_crafting_table
+    actor: hero
+    kind: place
+    block: crafting_table
+    mark: crafting_table
+    count: 1
+    timeout_ms: 30000
+    max_replans: 2
+    completion:
+      kind: placed_at_mark
+      block: crafting_table
+      mark: crafting_table
+  - id: craft_hero_wooden_pickaxe
+    actor: hero
+    kind: craft
+    recipe: wooden_pickaxe
+    mark: crafting_table
+    count: 1
+    timeout_ms: 30000
+    max_replans: 2
+    completion:
+      kind: actor_inventory_at_least
+      actor: hero
+      item: wooden_pickaxe
+      count: 1
+  - id: craft_rival_wooden_pickaxe
+    actor: rival
+    kind: craft
+    recipe: wooden_pickaxe
+    mark: crafting_table
+    count: 1
+    timeout_ms: 30000
+    max_replans: 2
+    completion:
+      kind: actor_inventory_at_least
+      actor: rival
+      item: wooden_pickaxe
+      count: 1
+  - id: equip_hero_wooden_pickaxe
+    actor: hero
+    kind: equip
+    item: wooden_pickaxe
+    destination: hand
+    count: 1
+    timeout_ms: 30000
+    max_replans: 2
+    completion:
+      kind: equipped_item
+      actor: hero
+      item: wooden_pickaxe
+      destination: hand
+  - id: equip_rival_wooden_pickaxe
+    actor: rival
+    kind: equip
+    item: wooden_pickaxe
+    destination: hand
+    count: 1
+    timeout_ms: 30000
+    max_replans: 2
+    completion:
+      kind: equipped_item
+      actor: rival
+      item: wooden_pickaxe
+      destination: hand
+  - id: excavate_hero_lane
+    actor: hero
+    kind: excavate
+    region: hero_mine_lane
+    block: stone
+    item: cobblestone
+    count: 6
+    timeout_ms: 60000
+    max_replans: 3
+    completion:
+      kind: actor_inventory_at_least
+      actor: hero
+      item: cobblestone
+      count: 6
+  - id: excavate_rival_lane
+    actor: rival
+    kind: excavate
+    region: rival_mine_lane
+    block: stone
+    item: cobblestone
+    count: 5
+    timeout_ms: 60000
+    max_replans: 3
+    completion:
+      kind: actor_inventory_at_least
+      actor: rival
+      item: cobblestone
+      count: 5

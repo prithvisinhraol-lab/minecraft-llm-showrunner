@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "set_id": "first_day_meadow",
+  "set_version": 1,
+  "dimension": "minecraft:overworld",
+  "protected_cuboid": {
+    "min": {"x": 40, "y": 63, "z": 40},
+    "max": {"x": 67, "y": 79, "z": 58}
+  },
+  "block_assertions": [
+    {
+      "position": {"x": 52, "y": 64, "z": 50},
+      "block": "minecraft:stone",
+      "verification": "authored_unverified"
+    }
+  ],
+  "actor_baselines": {
+    "hero": {"mark": "hero_start", "inventory": [], "health": 20, "food": 20, "effects": []},
+    "rival": {"mark": "rival_start", "inventory": [], "health": 20, "food": 20, "effects": []}
+  },
+  "environment": {
+    "time": 6000,
+    "weather": "clear",
+    "gamerules": {"doDaylightCycle": false, "doWeatherCycle": false}
+  },
+  "entity_cleanup_tag": "showrunner_production",
+  "reset_timeout_ms": 10000
+}

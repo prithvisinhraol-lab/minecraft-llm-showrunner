@@ -1,0 +1,47 @@
+schema_version: 1
+episode: invalid_mark
+title: Invalid Mark
+content_rating: family
+actors:
+  hero: profiles/hero.yaml
+  rival: profiles/rival.yaml
+set:
+  id: city_square_dialogue
+  baseline_manifest: sets/city-square-dialogue.v1.json
+scene:
+  id: confrontation
+  dimension: minecraft:overworld
+  marks:
+    hero_start:
+      position: {x: 532.5, y: 92, z: 44.5}
+      facing: {yaw: -90, pitch: 0}
+      radius: 0.8
+      dwell_ticks: 10
+    rival_start:
+      position: {x: 540.5, y: 92, z: 44.5}
+      facing: {yaw: 90, pitch: 0}
+      radius: 0.8
+      dwell_ticks: 10
+      safe_headroom: true
+  dialogue_policy:
+    maximum_words_per_line: 18
+    forbidden_literals: []
+    forbidden_patterns: []
+    allow_overlap: false
+  cues:
+    - id: rival_reveal
+      speaker: rival
+      mark: rival_start
+      required_intent: reveal map
+      approved_variants: [I have the map.]
+      fallback_line: I have the map.
+      timeout_seconds: 12
+    - id: hero_reply
+      speaker: hero
+      mark: hero_start
+      required_intent: recover map
+      approved_variants: [I will take it back.]
+      fallback_line: I will take it back.
+      timeout_seconds: 12
+retry:
+  whole_scene_attempts: 2

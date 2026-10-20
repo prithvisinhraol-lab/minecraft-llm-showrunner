@@ -1,0 +1,161 @@
+schema_version: 2
+episode: first_day_meadow
+title: First Day in the Meadow
+content_rating: family
+actors:
+  hero: ../profiles/hero.yaml
+  rival: ../profiles/rival.yaml
+set:
+  id: first_day_meadow
+  baseline_manifest: ../sets/first-day-meadow.v1.json
+scene:
+  id: first_day_meadow
+  dimension: minecraft:overworld
+  marks:
+    hero_start:
+      position: {x: 48, y: 65, z: 48}
+      facing: {yaw: 0, pitch: 0}
+      radius: 1
+      dwell_ticks: 1
+      safe_headroom: true
+    rival_start:
+      position: {x: 56, y: 65, z: 48}
+      facing: {yaw: 0, pitch: 0}
+      radius: 1
+      dwell_ticks: 1
+      safe_headroom: true
+    crafting_table:
+      position: {x: 52, y: 65, z: 50}
+      facing: {yaw: 0, pitch: 0}
+      radius: 1
+      dwell_ticks: 1
+      safe_headroom: true
+  dialogue_policy:
+    maximum_words_per_line: 18
+    forbidden_literals: [subscribe now]
+    forbidden_patterns: ['(?i)modern internet slang']
+    allow_overlap: false
+  cues:
+    - id: arrival
+      survival_beat_id: arrival
+      survival_goal_ids: []
+      dialogue:
+        - id: arrival_practical
+          speaker: hero
+          mark: hero_start
+          required_intent: orient both actors and commit to gathering wood before sunset
+          approved_variants:
+            - New world. Same sunset. Let us start with wood.
+          fallback_line: New world. Same sunset. Let us start with wood.
+        - id: arrival_energetic
+          speaker: rival
+          mark: rival_start
+          required_intent: prefer flowers before conceding that wood is the practical priority
+          approved_variants:
+            - I was going to say flowers, but wood is harder to regret.
+          fallback_line: I was going to say flowers, but wood is harder to regret.
+      timeout_seconds: 12
+    - id: first_priorities
+      survival_beat_id: first_priorities
+      survival_goal_ids: []
+      dialogue:
+        - id: first_priorities_energetic
+          speaker: rival
+          mark: rival_start
+          required_intent: identify the rival tree without beginning a Survival action
+          approved_variants:
+            - I found the best tree. It was the second one.
+          fallback_line: I found the best tree. It was the second one.
+        - id: first_priorities_practical
+          speaker: hero
+          mark: hero_start
+          required_intent: turn the revised tree choice into a precise three-log priority
+          approved_variants:
+            - Excellent. Keep revising until you have three logs.
+          fallback_line: Excellent. Keep revising until you have three logs.
+      timeout_seconds: 12
+    - id: two_trees
+      survival_beat_id: two_trees
+      survival_goal_ids: [gather_hero_logs, gather_rival_logs]
+      dialogue:
+        - id: two_trees_practical
+          speaker: hero
+          mark: hero_start
+          required_intent: assign three logs to each actor before gathering begins
+          approved_variants:
+            - Three logs each, then meet at the flat stone.
+          fallback_line: Three logs each, then meet at the flat stone.
+        - id: two_trees_energetic
+          speaker: rival
+          mark: rival_start
+          required_intent: confirm the three-log assignment with harmless confidence
+          approved_variants:
+            - Three. I can count trees when they cooperate.
+          fallback_line: Three. I can count trees when they cooperate.
+      timeout_seconds: 12
+    - id: crafting
+      survival_beat_id: crafting
+      survival_goal_ids:
+        - regroup_hero_at_crafting_table
+        - regroup_rival_at_crafting_table
+        - place_crafting_table
+        - craft_hero_wooden_pickaxe
+        - craft_rival_wooden_pickaxe
+        - equip_hero_wooden_pickaxe
+        - equip_rival_wooden_pickaxe
+      dialogue:
+        - id: crafting_practical
+          speaker: hero
+          mark: hero_start
+          required_intent: introduce the crafting sequence before the table is placed
+          approved_variants:
+            - Crafting starts here. Try not to craft a door.
+          fallback_line: Crafting starts here. Try not to craft a door.
+        - id: crafting_energetic
+          speaker: rival
+          mark: rival_start
+          required_intent: deny planning a door while admitting it was considered
+          approved_variants:
+            - A door was not the plan. It was a possibility.
+          fallback_line: A door was not the plan. It was a possibility.
+      timeout_seconds: 12
+    - id: breaking_ground
+      survival_beat_id: breaking_ground
+      survival_goal_ids: [excavate_hero_lane, excavate_rival_lane]
+      dialogue:
+        - id: breaking_ground_practical
+          speaker: hero
+          mark: hero_start
+          required_intent: confirm one equipped pickaxe per actor before excavation begins
+          approved_variants:
+            - Two pickaxes. One each. That avoids negotiations.
+          fallback_line: Two pickaxes. One each. That avoids negotiations.
+        - id: breaking_ground_energetic
+          speaker: rival
+          mark: rival_start
+          required_intent: accept the assigned pickaxe while rejecting the implied dispute
+          approved_variants:
+            - I accept mine and reject the implication.
+          fallback_line: I accept mine and reject the implication.
+      timeout_seconds: 12
+    - id: hook
+      survival_beat_id: hook
+      survival_goal_ids: []
+      dialogue:
+        - id: hook_energetic
+          speaker: rival
+          mark: rival_start
+          required_intent: notice coal as a hopeful surprise without starting another action
+          approved_variants:
+            - Coal already? The meadow is showing off.
+          fallback_line: Coal already? The meadow is showing off.
+        - id: hook_practical
+          speaker: hero
+          mark: hero_start
+          required_intent: connect the coal discovery to the next shelter goal without beginning it
+          approved_variants:
+            - Good. It can help with the shelter.
+          fallback_line: Good. It can help with the shelter.
+      timeout_seconds: 12
+retry:
+  whole_scene_attempts: 1
